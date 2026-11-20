@@ -52,16 +52,27 @@ const share = {
       href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800;900&family=Instrument+Serif:ital@1&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
-    <script is:inline>document.documentElement.classList.add("js");</script>
+    <script is:inline>
+      (() => {
+        const r = document.documentElement;
+        r.classList.add("js");
+        let t = null;
+        try { t = localStorage.getItem("theme"); } catch {}
+        const dark = t ? t === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+        r.classList.toggle("dark", dark);
+        if (dark) document.querySelector('meta[name="theme-color"]')?.setAttribute("content", "#0e0e0f");
+      })();
+    </script>
   </head>
   <body>
     <a
       href="#trabajos"
-      class="fixed -left-[9999px] top-2 z-[100] rounded-lg bg-ink px-3.5 py-2.5 text-white focus:left-2"
+      class="fixed -left-[9999px] top-2 z-[100] rounded-lg bg-ink px-3.5 py-2.5 text-bg focus:left-2"
     >Saltar al contenido</a>
     <slot />
     <script>
       import "../scripts/cal";
+      import "../scripts/theme";
 
       const io = new IntersectionObserver(
         (entries) => {

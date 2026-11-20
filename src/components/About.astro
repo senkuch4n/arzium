@@ -1,5 +1,6 @@
 ---
-import { projects, services } from "../data/site";
+import { Image } from "astro:assets";
+import { projects } from "../data/site";
 
 const text =
   "Somos Arzium, un equipo de desarrollo de Salta. Diseñamos y programamos sistemas que ordenan el trabajo de verdad, sitios que convierten visitas en clientes y capacitaciones para que tu equipo saque provecho de la tecnología. Sin humo: software claro, rápido y hecho para durar.";
@@ -10,35 +11,15 @@ let seed = 7;
 const rand = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
 const words = text.split(" ").map((w) => ({ w, gap: rand() < 0.35 ? 0 : 0.6 + rand() * 3.4 }));
 
-const stats = [
-  { value: projects.length, label: "Proyectos en producción" },
-  { value: services.length, label: "Líneas de servicio" },
-  { text: "Remoto", label: "Trabajamos con todo el país" },
-];
+const deck = projects.filter((p) => p.image);
+/** Rotación de cada posición de la pila (0 = arriba). */
+const ROTS = [0, 5, -4, 7, -6];
 ---
 
-<section id="nosotros" class="grid gap-x-[var(--gutter)] gap-y-10 px-[var(--gutter)] pt-[clamp(80px,12vw,180px)] lg:grid-cols-[1fr_3fr]">
-  <div class="flex flex-col gap-8 lg:sticky lg:top-8 lg:self-start">
-    <h2 class="font-semibold tracking-wide text-muted uppercase">Nosotros</h2>
-
-    <p class="flex items-center gap-2.5 font-medium">
-      <span class="relative flex size-2.5">
-        <span class="absolute inline-flex size-full animate-ping rounded-full bg-[#22c55e] opacity-60"></span>
-        <span class="relative inline-flex size-2.5 rounded-full bg-[#22c55e]"></span>
-      </span>
-      Disponibles para nuevos proyectos
-    </p>
-
-    <div>
-      <p class="text-[clamp(48px,5.4vw,84px)] leading-none font-semibold tracking-[-0.04em] tabular-nums">
-        <time data-clock>--:--</time><span data-clock-sec class="text-[.4em] text-muted"></span>
-      </p>
-      <p class="mt-2 text-sm font-medium text-muted">Hora en Salta, Argentina · GMT−3</p>
-    </div>
-  </div>
-
+<section id="nosotros" class="grid items-center gap-x-[var(--gutter)] gap-y-14 px-[var(--gutter)] pt-[clamp(80px,12vw,180px)] lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
   <div>
-    <p data-scatter class="text-[clamp(26px,3.5vw,54px)] leading-[1.08] font-semibold tracking-[-0.03em] [--s:0] [.js_&]:[--s:1]">
+    <h2 class="mb-8 font-semibold tracking-wide text-muted uppercase">Nosotros</h2>
+    <p data-scatter class="text-[clamp(26px,3.3vw,52px)] leading-[1.08] font-semibold tracking-[-0.03em] [--s:0] [.js_&]:[--s:1]">
       {
         words.map(({ w, gap }) => (
           <>
@@ -47,26 +28,57 @@ const stats = [
         ))
       }
     </p>
+  </div>
 
-    <dl class="mt-14 grid gap-y-6 border-t border-ink pt-6 sm:grid-cols-3 sm:gap-x-[var(--gutter)]">
+  <!-- Pila de capturas: rota sola y se abre en abanico al pasar el mouse. -->
+  <figure class="m-0" data-rots={JSON.stringify(ROTS)}>
+    <div data-deck class="deck relative mx-auto aspect-[16/11] w-[min(100%,560px)]">
       {
-        stats.map((s) => (
-          <div class="reveal">
-            <dt class="sr-only">{s.label}</dt>
-            <dd class="text-[clamp(48px,6vw,96px)] leading-none font-black tracking-[-0.05em]">
-              {"value" in s ? (
-                <span data-count={s.value}>{String(s.value).padStart(2, "0")}</span>
-              ) : (
-                <span class="text-violet">{s.text}</span>
-              )}
-            </dd>
-            <dd class="mt-2 font-medium text-muted" aria-hidden="true">{s.label}</dd>
-          </div>
+        deck.map((p, i) => (
+          <a
+            href={p.url}
+            target="_blank"
+            rel="noopener"
+            class="deck-card absolute inset-0 overflow-hidden rounded-lg bg-line shadow-[0_24px_50px_-24px_rgba(0,0,0,.45)] ring-1 ring-black/5"
+            style={`--i:${i};--rot:${ROTS[i % ROTS.length]}deg`}
+            data-name={p.name}
+            data-cat={p.category}
+            tabindex={i === 0 ? 0 : -1}
+            aria-label={`${p.name} (${p.category})`}
+          >
+            <Image src={p.image!.src} alt="" widths={[560, 1120]} sizes="560px" class="size-full object-cover object-top" />
+          </a>
         ))
       }
-    </dl>
-  </div>
+    </div>
+    <figcaption class="mx-auto mt-6 flex w-[min(100%,560px)] items-center justify-between font-mono text-sm">
+      <span><span data-deck-name>{deck[0]?.name}</span> <span class="text-muted">· <span data-deck-cat>{deck[0]?.category}</span></span></span>
+      <span class="text-muted" aria-hidden="true"><span data-deck-idx>01</span> / {String(deck.length).padStart(2, "0")}</span>
+    </figcaption>
+  </figure>
 </section>
+
+<style>
+  /* Posición de cada tarjeta según --i (0 = arriba). */
+  .deck-card {
+    z-index: calc(10 - var(--i));
+    transform-origin: 50% 90%;
+    transform: translate(calc(var(--i) * 14px), calc(var(--i) * -16px)) rotate(var(--rot)) scale(calc(1 - var(--i) * 0.045));
+    transition: transform 0.9s var(--ease-out-expo), opacity 0.45s;
+  }
+  .deck-card.leaving {
+    transform: translate(-28%, 14%) rotate(-14deg) scale(0.92);
+    opacity: 0;
+  }
+  /* Abanico al pasar el mouse. */
+  .deck:hover .deck-card,
+  .deck:focus-within .deck-card {
+    transform: translate(calc((var(--i) - 1.5) * 11% + 4%), calc(var(--i) * 1.5%)) rotate(calc((var(--i) - 1.5) * 5deg)) scale(0.72);
+  }
+  .deck:hover .deck-card:hover {
+    transform: translate(calc((var(--i) - 1.5) * 11% + 4%), calc(var(--i) * 1.5% - 5%)) rotate(calc((var(--i) - 1.5) * 5deg)) scale(0.76);
+  }
+</style>
 
 <script>
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -91,40 +103,45 @@ const stats = [
     }
   }
 
-  /* Reloj en vivo con la hora de Salta. */
-  const clock = document.querySelector<HTMLElement>("[data-clock]");
-  const sec = document.querySelector<HTMLElement>("[data-clock-sec]");
-  if (clock && sec) {
-    const fmt = new Intl.DateTimeFormat("es-AR", {
-      timeZone: "America/Argentina/Salta", hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23",
-    });
-    const tick = () => {
-      const [h, m, s] = fmt.format(new Date()).split(":");
-      clock.textContent = `${h}:${m}`;
-      sec.textContent = `:${s}`;
-    };
-    tick();
-    setInterval(tick, 1000);
-  }
+  /* Pila de capturas: cada 3 s la de arriba sale volando y pasa al fondo. */
+  const deck = document.querySelector<HTMLElement>("[data-deck]");
+  if (deck) {
+    let order = [...deck.querySelectorAll<HTMLElement>(".deck-card")];
+    const rots = JSON.parse(deck.closest("figure")?.dataset.rots ?? "[0]") as number[];
+    const name = document.querySelector("[data-deck-name]")!;
+    const cat = document.querySelector("[data-deck-cat]")!;
+    const idx = document.querySelector("[data-deck-idx]")!;
+    const total = order.length;
+    let shown = 0, paused = false, visible = false;
 
-  /* Cifras que cuentan desde 0 al aparecer. */
-  const counters = document.querySelectorAll<HTMLElement>("[data-count]");
-  if (!reduced) {
-    const io = new IntersectionObserver((entries) => {
-      for (const e of entries) {
-        if (!e.isIntersecting) continue;
-        io.unobserve(e.target);
-        const el = e.target as HTMLElement;
-        const to = Number(el.dataset.count);
-        const start = performance.now();
-        const frame = (now: number) => {
-          const k = Math.min(1, (now - start) / 1200);
-          el.textContent = String(Math.round(to * (1 - Math.pow(1 - k, 3)))).padStart(2, "0");
-          if (k < 1) requestAnimationFrame(frame);
-        };
-        requestAnimationFrame(frame);
-      }
-    }, { threshold: 0.6 });
-    counters.forEach((c) => io.observe(c));
+    const layout = () => {
+      order.forEach((c, i) => {
+        c.style.setProperty("--i", String(i));
+        c.style.setProperty("--rot", `${rots[i % rots.length]}deg`);
+        c.tabIndex = i === 0 ? 0 : -1;
+      });
+      name.textContent = order[0]!.dataset.name ?? "";
+      cat.textContent = order[0]!.dataset.cat ?? "";
+      idx.textContent = String((shown % total) + 1).padStart(2, "0");
+    };
+
+    const next = () => {
+      if (paused || !visible) return;
+      const top = order[0]!;
+      top.classList.add("leaving");
+      setTimeout(() => {
+        top.classList.remove("leaving");
+        order = [...order.slice(1), top];
+        shown++;
+        layout();
+      }, 450);
+    };
+
+    deck.addEventListener("pointerenter", () => (paused = true));
+    deck.addEventListener("pointerleave", () => (paused = false));
+    deck.addEventListener("focusin", () => (paused = true));
+    deck.addEventListener("focusout", () => (paused = false));
+    new IntersectionObserver(([e]) => (visible = !!e?.isIntersecting)).observe(deck);
+    if (!reduced) setInterval(next, 3000);
   }
 </script>

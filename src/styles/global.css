@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-bg: #f2f1ee;
   --color-ink: #141414;
@@ -7,6 +9,8 @@
   --color-line: #d9d8d3;
   --color-body: #3b3b39;
   --color-violet: #4b05f8;
+  /* Superficie oscura (dock, panel del stack, tarjeta de agenda): sigue oscura en ambos temas. */
+  --color-panel: #141414;
 
   --font-sans: "Inter Tight", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-serif: "Instrument Serif", ui-serif, Georgia, serif;
@@ -29,6 +33,22 @@
   @keyframes blink { 50% { opacity: 0; } }
   @keyframes marquee { to { transform: translateX(-50%); } }
 }
+
+/* Modo oscuro: se redefinen los mismos tokens, así todos los componentes cambian solos. */
+.dark {
+  --color-bg: #0e0e0f;
+  --color-ink: #f2f1ee;
+  --color-muted: #8c8c88;
+  --color-line: #2a2a2c;
+  --color-body: #c4c3bf;
+  --color-violet: #7d4bff;
+  --color-panel: #1c1c1f;
+  color-scheme: dark;
+}
+
+/* Transición de tema: la vista nueva se revela en círculo desde el botón (ver scripts/theme.ts). */
+::view-transition-old(root),
+::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
 
 @layer base {
   :root { --gutter: clamp(16px, 2.2vw, 32px); }
