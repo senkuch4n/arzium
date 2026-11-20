@@ -2,21 +2,76 @@
 import { stack } from "../data/site";
 ---
 
-<section class="pt-[clamp(80px,12vw,180px)] text-center" aria-labelledby="stack-title">
-  <h2 id="stack-title" class="px-[var(--gutter)] text-[clamp(56px,13vw,240px)] leading-[.82] font-black tracking-[-0.05em] uppercase">
-    <span class="text-stroke">Stack</span> <span>moderno</span>
-  </h2>
-  <p class="mt-12 mb-5 font-semibold tracking-wide text-muted uppercase">Trabajamos con</p>
-  <div class="group mask-fade-x overflow-hidden border-y border-ink" aria-label={`Tecnologías: ${stack.join(", ")}`} role="img">
-    <div class="flex w-max animate-marquee group-hover:[animation-play-state:paused]" aria-hidden="true">
-      {
-        [...stack, ...stack].map((t) => (
-          <span class="px-[34px] py-[22px] text-[clamp(22px,2.6vw,38px)] font-bold tracking-[-0.03em] whitespace-nowrap">
-            {t}
-            <span class="ml-[68px] align-middle text-[.6em] text-violet">✦</span>
-          </span>
-        ))
-      }
+<section class="px-[var(--gutter)] pt-[clamp(80px,12vw,180px)]" aria-labelledby="stack-title">
+  <!-- Pista de scroll: su alto lo calcula el script para que la lista recorra todo el panel. -->
+  <div data-stack class="relative h-[260svh]">
+    <div
+      class="sticky top-4 h-[calc(100svh-2rem)] overflow-hidden rounded-[10px] bg-ink text-white [background-image:radial-gradient(rgba(255,255,255,.28)_1.2px,transparent_1.6px)] [background-size:44px_44px]"
+    >
+      <div class="pointer-events-none absolute inset-x-0 top-0 z-10 flex justify-between p-[clamp(20px,2.5vw,36px)]">
+        <h2 id="stack-title" class="font-semibold tracking-wide text-white/60 uppercase">Stack moderno</h2>
+        <span class="font-mono text-sm text-white/40">( {String(stack.length).padStart(2, "0")} )</span>
+      </div>
+
+      <ul data-stack-list class="absolute inset-x-0 top-0 px-[clamp(20px,2.5vw,36px)] will-change-transform">
+        {
+          stack.map((t) => (
+            <li class="text-[clamp(44px,7vw,120px)] leading-[1.02] font-semibold tracking-[-0.04em] whitespace-nowrap">
+              <span class="inline-block will-change-transform">{t}</span>
+            </li>
+          ))
+        }
+      </ul>
     </div>
   </div>
 </section>
+
+<script>
+  const track = document.querySelector<HTMLElement>("[data-stack]");
+  const list = track?.querySelector<HTMLElement>("[data-stack-list]");
+  const panel = list?.parentElement;
+  if (track && list && panel) {
+    const words = [...list.querySelectorAll<HTMLElement>("li > span")];
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let panelH = 0, listH = 0, tops: number[] = [], heights: number[] = [], maxX: number[] = [];
+
+    const measure = () => {
+      panelH = panel.clientHeight;
+      listH = list.offsetHeight;
+      const pad = parseFloat(getComputedStyle(list).paddingLeft);
+      tops = words.map((w) => (w.parentElement as HTMLElement).offsetTop);
+      heights = words.map((w) => (w.parentElement as HTMLElement).offsetHeight);
+      maxX = words.map((w) => Math.max(0, list.clientWidth - pad * 2 - w.offsetWidth));
+      // La lista entra por abajo y sale por arriba: el recorrido define el alto de la pista.
+      track.style.height = `${panelH + listH + panelH * 0.3}px`;
+      update();
+    };
+
+    const ease = (t: number) => t * t * (3 - 2 * t);
+
+    const update = () => {
+      const rect = track.getBoundingClientRect();
+      const travel = track.offsetHeight - panelH;
+      const p = reduced ? 0.5 : Math.min(1, Math.max(0, -rect.top / (travel || 1)));
+      // La lista arranca con la primera palabra cerca del borde inferior y termina con la última arriba.
+      const startY = panelH * 0.78;
+      const endY = panelH * 0.22 - listH;
+      const listY = startY + (endY - startY) * p;
+      list.style.transform = `translate3d(0, ${listY}px, 0)`;
+
+      words.forEach((w, i) => {
+        // Posición vertical de la palabra dentro del panel: 1 = abajo, 0 = arriba.
+        const y = (listY + tops[i]! + heights[i]! / 2) / panelH;
+        const k = reduced ? 1 : ease(Math.min(1, Math.max(0, (0.82 - y) / 0.4)));
+        w.style.transform = `translate3d(${(maxX[i]! * k).toFixed(1)}px, 0, 0)`;
+        w.style.opacity = (0.28 + 0.72 * k).toFixed(3);
+      });
+    };
+
+    let queued = false;
+    addEventListener("scroll", () => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; update(); }); } }, { passive: true });
+    new ResizeObserver(measure).observe(panel);
+    document.fonts?.ready.then(measure);
+    measure();
+  }
+</script>
