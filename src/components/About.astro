@@ -1,4 +1,6 @@
 ---
+import { projects, services } from "../data/site";
+
 const text =
   "Somos Arzium, un equipo de desarrollo de Salta. Diseñamos y programamos sistemas que ordenan el trabajo de verdad, sitios que convierten visitas en clientes y capacitaciones para que tu equipo saque provecho de la tecnología. Sin humo: software claro, rápido y hecho para durar.";
 
@@ -7,25 +9,72 @@ const text =
 let seed = 7;
 const rand = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
 const words = text.split(" ").map((w) => ({ w, gap: rand() < 0.35 ? 0 : 0.6 + rand() * 3.4 }));
+
+const stats = [
+  { value: projects.length, label: "Proyectos en producción" },
+  { value: services.length, label: "Líneas de servicio" },
+  { text: "Remoto", label: "Trabajamos con todo el país" },
+];
 ---
 
-<section id="nosotros" class="grid gap-[var(--gutter)] px-[var(--gutter)] pt-[clamp(80px,12vw,180px)] lg:grid-cols-[1fr_3fr]">
-  <h2 class="font-semibold tracking-wide text-muted uppercase">Nosotros</h2>
-  <p data-scatter class="text-[clamp(26px,3.5vw,54px)] leading-[1.08] font-semibold tracking-[-0.03em] [--s:0] [.js_&]:[--s:1]">
-    {
-      words.map(({ w, gap }) => (
-        <>
-          <span class="ml-[calc(var(--g)*var(--s)*1em)] inline-block" style={`--g:${gap.toFixed(2)}`}>{w}</span>{" "}
-        </>
-      ))
-    }
-  </p>
+<section id="nosotros" class="grid gap-x-[var(--gutter)] gap-y-10 px-[var(--gutter)] pt-[clamp(80px,12vw,180px)] lg:grid-cols-[1fr_3fr]">
+  <div class="flex flex-col gap-8 lg:sticky lg:top-8 lg:self-start">
+    <h2 class="font-semibold tracking-wide text-muted uppercase">Nosotros</h2>
+
+    <p class="flex items-center gap-2.5 font-medium">
+      <span class="relative flex size-2.5">
+        <span class="absolute inline-flex size-full animate-ping rounded-full bg-[#22c55e] opacity-60"></span>
+        <span class="relative inline-flex size-2.5 rounded-full bg-[#22c55e]"></span>
+      </span>
+      Disponibles para nuevos proyectos
+    </p>
+
+    <div>
+      <p class="text-[clamp(48px,5.4vw,84px)] leading-none font-semibold tracking-[-0.04em] tabular-nums">
+        <time data-clock>--:--</time><span data-clock-sec class="text-[.4em] text-muted"></span>
+      </p>
+      <p class="mt-2 text-sm font-medium text-muted">Hora en Salta, Argentina · GMT−3</p>
+    </div>
+  </div>
+
+  <div>
+    <p data-scatter class="text-[clamp(26px,3.5vw,54px)] leading-[1.08] font-semibold tracking-[-0.03em] [--s:0] [.js_&]:[--s:1]">
+      {
+        words.map(({ w, gap }) => (
+          <>
+            <span class="ml-[calc(var(--g)*var(--s)*1em)] inline-block" style={`--g:${gap.toFixed(2)}`}>{w}</span>{" "}
+          </>
+        ))
+      }
+    </p>
+
+    <dl class="mt-14 grid gap-y-6 border-t border-ink pt-6 sm:grid-cols-3 sm:gap-x-[var(--gutter)]">
+      {
+        stats.map((s) => (
+          <div class="reveal">
+            <dt class="sr-only">{s.label}</dt>
+            <dd class="text-[clamp(48px,6vw,96px)] leading-none font-black tracking-[-0.05em]">
+              {"value" in s ? (
+                <span data-count={s.value}>{String(s.value).padStart(2, "0")}</span>
+              ) : (
+                <span class="text-violet">{s.text}</span>
+              )}
+            </dd>
+            <dd class="mt-2 font-medium text-muted" aria-hidden="true">{s.label}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
 </section>
 
 <script>
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* Párrafo: los huecos entre palabras se cierran con el scroll. */
   const p = document.querySelector<HTMLElement>("[data-scatter]");
   if (p) {
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches) p.style.setProperty("--s", "0");
+    if (reduced) p.style.setProperty("--s", "0");
     else {
       let queued = false;
       const update = () => {
@@ -40,5 +89,42 @@ const words = text.split(" ").map((w) => ({ w, gap: rand() < 0.35 ? 0 : 0.6 + ra
       addEventListener("resize", update);
       update();
     }
+  }
+
+  /* Reloj en vivo con la hora de Salta. */
+  const clock = document.querySelector<HTMLElement>("[data-clock]");
+  const sec = document.querySelector<HTMLElement>("[data-clock-sec]");
+  if (clock && sec) {
+    const fmt = new Intl.DateTimeFormat("es-AR", {
+      timeZone: "America/Argentina/Salta", hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23",
+    });
+    const tick = () => {
+      const [h, m, s] = fmt.format(new Date()).split(":");
+      clock.textContent = `${h}:${m}`;
+      sec.textContent = `:${s}`;
+    };
+    tick();
+    setInterval(tick, 1000);
+  }
+
+  /* Cifras que cuentan desde 0 al aparecer. */
+  const counters = document.querySelectorAll<HTMLElement>("[data-count]");
+  if (!reduced) {
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        io.unobserve(e.target);
+        const el = e.target as HTMLElement;
+        const to = Number(el.dataset.count);
+        const start = performance.now();
+        const frame = (now: number) => {
+          const k = Math.min(1, (now - start) / 1200);
+          el.textContent = String(Math.round(to * (1 - Math.pow(1 - k, 3)))).padStart(2, "0");
+          if (k < 1) requestAnimationFrame(frame);
+        };
+        requestAnimationFrame(frame);
+      }
+    }, { threshold: 0.6 });
+    counters.forEach((c) => io.observe(c));
   }
 </script>
