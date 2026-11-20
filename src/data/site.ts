@@ -16,6 +16,8 @@ export const contact = {
 export const cal = {
   link: "arzium-events/30min",
   namespace: "arzium",
+  /** Resumen del evento que se muestra en la tarjeta de Contacto. */
+  summary: "Reunión de 30 min · Google Meet",
 } as const;
 export const calUrl = `https://cal.com/${cal.link}`;
 

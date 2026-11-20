@@ -11,6 +11,7 @@ declare global {
 }
 
 const BRAND = "#4b05f8";
+const PAGE_BG = "#f2f1ee";
 let api: CalFn | null = null;
 
 function loadCal(): CalFn {
@@ -27,7 +28,11 @@ function loadCal(): CalFn {
     theme: "light",
     layout: "month_view",
     hideEventTypeDetails: false,
-    cssVarsPerTheme: { light: { "cal-brand": BRAND }, dark: { "cal-brand": BRAND } },
+    cssVarsPerTheme: {
+      // Fondo igual al de la página para que la agenda no sea un bloque blanco.
+      light: { "cal-brand": BRAND, "cal-bg": PAGE_BG, "cal-bg-muted": PAGE_BG },
+      dark: { "cal-brand": BRAND },
+    },
   });
   return api;
 }
@@ -40,16 +45,19 @@ document.addEventListener("click", (e) => {
   loadCal()("modal", { calLink: cal.link, config: { layout: "month_view" } });
 });
 
-/* Calendario embebido: se monta cuando está por entrar en pantalla. */
-const inline = document.getElementById("cal-inline");
-if (inline) {
-  const io = new IntersectionObserver(
-    ([entry]) => {
-      if (!entry?.isIntersecting) return;
-      io.disconnect();
+/* Agenda embebida: oculta por defecto; se despliega (y recién ahí se carga Cal) con [data-cal-toggle]. */
+const toggle = document.querySelector<HTMLButtonElement>("[data-cal-toggle]");
+const panel = toggle && document.getElementById(toggle.getAttribute("aria-controls") ?? "");
+if (toggle && panel) {
+  let mounted = false;
+  toggle.addEventListener("click", () => {
+    const open = panel.hidden;
+    panel.hidden = !open;
+    toggle.setAttribute("aria-expanded", String(open));
+    if (open && !mounted) {
+      mounted = true;
       loadCal()("inline", { elementOrSelector: "#cal-inline", calLink: cal.link, config: { layout: "month_view" } });
-    },
-    { rootMargin: "600px 0px" },
-  );
-  io.observe(inline);
+    }
+    if (open) panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  });
 }
