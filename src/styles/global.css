@@ -9,6 +9,7 @@
   --color-violet: #4b05f8;
 
   --font-sans: "Inter Tight", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: "Instrument Serif", ui-serif, Georgia, serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
