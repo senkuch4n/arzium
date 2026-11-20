@@ -16,7 +16,7 @@ const deck = projects.filter((p) => p.image);
 const ROTS = [0, 5, -4, 7, -6];
 ---
 
-<section id="nosotros" class="grid items-center gap-x-[var(--gutter)] gap-y-14 px-[var(--gutter)] pt-[clamp(80px,12vw,180px)] lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
+<section id="nosotros" class="grid items-center gap-x-[var(--gutter)] gap-y-14 px-[var(--gutter)] pt-[clamp(40px,6vw,96px)] lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
   <div>
     <h2 class="mb-8 font-semibold tracking-wide text-muted uppercase">Nosotros</h2>
     <p data-scatter class="text-[clamp(26px,3.3vw,52px)] leading-[1.08] font-semibold tracking-[-0.03em] [--s:0] [.js_&]:[--s:1]">
@@ -63,7 +63,7 @@ const ROTS = [0, 5, -4, 7, -6];
   .deck-card {
     z-index: calc(10 - var(--i));
     transform-origin: 50% 90%;
-    transform: translate(calc(var(--i) * 14px), calc(var(--i) * -16px)) rotate(var(--rot)) scale(calc(1 - var(--i) * 0.045));
+    transform: translate(calc(var(--i) * -14px), calc(var(--i) * -16px)) rotate(var(--rot)) scale(calc(1 - var(--i) * 0.045));
     transition: transform 0.9s var(--ease-out-expo), opacity 0.45s;
   }
   .deck-card.leaving {
