@@ -2,6 +2,7 @@ import type { ImageMetadata } from "astro";
 import factum from "../assets/work/factum.jpg";
 import numa from "../assets/work/numa.jpg";
 import juridico from "../assets/work/juridico.jpg";
+import techmap from "../assets/work/techmap.jpg";
 
 export const contact = {
   email: "arzium.dev@gmail.com",
@@ -55,7 +56,7 @@ export const projects: Project[] = [
     year: 2026,
     tags: ["Panel de gestión", "Inicio de sesión con Google", "Lista de acceso", "Web app"],
     icon: { text: "N", className: "bg-[#e9f6e3] text-[#3a8f2c]" },
-    image: { src: numa, alt: "Pantalla de acceso del panel de Numa" },
+    image: { src: numa, alt: "Panel de Numa: base de alimentos con valores nutricionales" },
   },
   {
     name: "TechMap",
@@ -64,7 +65,7 @@ export const projects: Project[] = [
     year: 2026,
     tags: ["Seguridad electrónica", "Catálogo de servicios", "Contacto directo", "SEO local"],
     icon: { text: "T", className: "bg-[#0f1720] text-white" },
-    cover: { title: "TechMap", subtitle: "Cámaras de seguridad & alarmas" },
+    image: { src: techmap, alt: "Portada del sitio de TechMap: cámaras de seguridad y alarmas" },
   },
   {
     name: "Federico & Asociados",
