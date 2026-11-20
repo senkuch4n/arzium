@@ -1,6 +1,5 @@
 ---
 import "../styles/global.css";
-import logo from "../assets/arzium-logo.png";
 
 interface Props {
   title?: string;
@@ -11,7 +10,13 @@ const {
   title = "Arzium — Software a medida desde Salta",
   description = "Arzium es un estudio de desarrollo de software: sistemas a medida, landing pages y capacitaciones. Salta, Argentina.",
 } = Astro.props;
-const ogImage = new URL(logo.src, Astro.site).href;
+
+/* Vista previa al compartir el link (WhatsApp, LinkedIn, X…). Imagen 1200×630 en public/og.png. */
+const share = {
+  title: "Arzium",
+  description: "Software a medida: sistemas, landing pages y capacitaciones.",
+  image: new URL("/og.png", Astro.site).href,
+};
 ---
 
 <!doctype html>
@@ -23,10 +28,20 @@ const ogImage = new URL(logo.src, Astro.site).href;
     <meta name="description" content={description} />
     <link rel="canonical" href={Astro.site} />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
+    <meta property="og:site_name" content="Arzium" />
+    <meta property="og:locale" content="es_AR" />
+    <meta property="og:title" content={share.title} />
+    <meta property="og:description" content={share.description} />
     <meta property="og:url" content={Astro.site} />
-    <meta property="og:image" content={ogImage} />
+    <meta property="og:image" content={share.image} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Logo de Arzium: software a medida" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={share.title} />
+    <meta name="twitter:description" content={share.description} />
+    <meta name="twitter:image" content={share.image} />
     <meta name="theme-color" content="#f2f1ee" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />

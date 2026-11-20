@@ -54,7 +54,7 @@ export const projects: Project[] = [
     url: "https://numa.arzium.com.ar",
     category: "Sistema",
     year: 2026,
-    tags: ["Panel de gestión", "Inicio de sesión con Google", "Lista de acceso", "Web app"],
+    tags: ["Turnos y seguimiento nutricional", "Base de alimentos con valores nutricionales", "Acceso con Google", "Web app"],
     icon: { text: "N", className: "bg-[#e9f6e3] text-[#3a8f2c]" },
     image: { src: numa, alt: "Panel de Numa: base de alimentos con valores nutricionales" },
   },
