@@ -1,4 +1,6 @@
 ---
+import { Image } from "astro:assets";
+import icon from "../assets/arzium-icono-sin-fondo.png";
 import { nav } from "../data/site";
 
 const ticker = "Sistemas · Landing pages · Capacitaciones · Desarrollo a medida · Salta, Argentina · ";
@@ -11,8 +13,10 @@ const ticker = "Sistemas · Landing pages · Capacitaciones · Desarrollo a medi
   <a
     href="#top"
     aria-label="Arzium, volver arriba"
-    class="grid size-[52px] place-items-center rounded-[9px] bg-white font-mono text-base font-medium tracking-[-0.08em] text-violet transition-colors hover:bg-violet hover:text-white sm:size-16 sm:text-xl"
-  >&lt;/&gt;</a>
+    class="group grid size-[52px] place-items-center rounded-[9px] bg-white sm:size-16"
+  >
+    <Image src={icon} alt="" width={128} height={128} class="size-10 transition-transform duration-300 ease-out-expo group-hover:scale-110 sm:size-12" />
+  </a>
 
   <div class="mask-fade-r min-w-0 overflow-hidden">
     <strong class="block text-lg font-semibold tracking-[-0.01em]">ARZIUM</strong>
