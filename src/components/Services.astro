@@ -1,0 +1,39 @@
+---
+import SectionHead from "./SectionHead.astro";
+import { services } from "../data/site";
+---
+
+<section id="servicios" class="px-[var(--gutter)] pt-[clamp(80px,12vw,180px)]" aria-labelledby="services-title">
+  <SectionHead id="services-title" title="Servicios">
+    <p class="max-w-[34ch] text-lg text-body">
+      Tres formas de trabajar juntos. Todas empiezan igual: entendiendo tu negocio antes de escribir una línea de código.
+    </p>
+  </SectionHead>
+
+  <ol>
+    {
+      services.map((s, i) => (
+        <li class="reveal group relative isolate grid gap-[var(--gutter)] border-b border-line py-9 transition-colors duration-300 hover:text-white sm:grid-cols-[auto_1fr] lg:grid-cols-[minmax(0,1fr)_minmax(0,4fr)_minmax(0,4fr)_minmax(0,4fr)]">
+          <span
+            class="absolute inset-y-0 -inset-x-[var(--gutter)] -z-10 origin-bottom scale-y-0 bg-violet transition-transform duration-500 ease-out-expo group-hover:scale-y-100"
+            aria-hidden="true"
+          />
+          <span class="pt-2.5 font-mono text-sm text-muted transition-colors group-hover:text-white">
+            {String(i + 1).padStart(2, "0")}
+          </span>
+          <h3 class="text-[clamp(30px,3.6vw,54px)] leading-none font-extrabold tracking-[-0.04em]">{s.name}</h3>
+          <p class="max-w-[38ch] text-lg text-body transition-colors group-hover:text-white sm:col-start-2 lg:col-start-auto">
+            {s.description}
+          </p>
+          <ul class="sm:col-start-2 lg:col-start-auto">
+            {s.bullets.map((b) => (
+              <li class="border-b border-current/20 py-[7px] font-medium">
+                <span class="text-violet group-hover:text-white">→</span> {b}
+              </li>
+            ))}
+          </ul>
+        </li>
+      ))
+    }
+  </ol>
+</section>

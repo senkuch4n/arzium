@@ -1,0 +1,68 @@
+---
+import { nav } from "../data/site";
+
+const ticker = "Sistemas · Landing pages · Capacitaciones · Desarrollo a medida · Salta, Argentina · ";
+---
+
+<nav
+  aria-label="Principal"
+  class="fixed bottom-5 left-1/2 z-50 grid w-[min(700px,calc(100%-32px))] -translate-x-1/2 animate-dock-in grid-cols-[auto_1fr_auto] items-center gap-[18px] rounded-[14px] bg-ink py-2 pr-3.5 pl-2 text-white shadow-[0_20px_40px_-20px_rgba(0,0,0,.45)]"
+>
+  <a
+    href="#top"
+    aria-label="Arzium, volver arriba"
+    class="grid size-[52px] place-items-center rounded-[9px] bg-white font-mono text-base font-medium tracking-[-0.08em] text-violet transition-colors hover:bg-violet hover:text-white sm:size-16 sm:text-xl"
+  >&lt;/&gt;</a>
+
+  <div class="mask-fade-r min-w-0 overflow-hidden">
+    <strong class="block text-lg font-semibold tracking-[-0.01em]">ARZIUM</strong>
+    <div class="flex w-max animate-marquee-fast text-[13px] tracking-[.1em] whitespace-pre text-white/60 uppercase" aria-hidden="true">
+      <span>{ticker}</span><span>{ticker}</span>
+    </div>
+  </div>
+
+  <button
+    type="button"
+    data-dock-toggle
+    aria-expanded="false"
+    aria-controls="dock-menu"
+    aria-label="Abrir menú"
+    class="group grid size-11 cursor-pointer place-content-center gap-[5px] rounded-lg hover:bg-white/10"
+  >
+    <span class="block h-0.5 w-[22px] bg-white transition duration-300 ease-out-expo group-aria-expanded:translate-y-[7px] group-aria-expanded:rotate-45"></span>
+    <span class="block h-0.5 w-[22px] bg-white transition-opacity group-aria-expanded:opacity-0"></span>
+    <span class="block h-0.5 w-[22px] bg-white transition duration-300 ease-out-expo group-aria-expanded:-translate-y-[7px] group-aria-expanded:-rotate-45"></span>
+  </button>
+
+  <div id="dock-menu" hidden class="col-span-full grid grid-cols-2 gap-1.5 pt-1.5 pb-1 pl-1.5 sm:grid-cols-4 [&[hidden]]:hidden">
+    {
+      nav.map((n) => (
+        <a href={n.href} class="rounded-lg bg-white/5 px-3 py-3.5 text-center font-semibold transition-colors hover:bg-violet">
+          {n.label}
+        </a>
+      ))
+    }
+  </div>
+</nav>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>("[data-dock-toggle]");
+  const menu = document.getElementById("dock-menu");
+  if (toggle && menu) {
+    const setOpen = (open: boolean) => {
+      toggle.setAttribute("aria-expanded", String(open));
+      toggle.setAttribute("aria-label", open ? "Cerrar menú" : "Abrir menú");
+      menu.hidden = !open;
+    };
+    toggle.addEventListener("click", () => setOpen(menu.hidden));
+    menu.addEventListener("click", (e) => {
+      if ((e.target as Element).closest("a")) setOpen(false);
+    });
+    addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !menu.hidden) {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+  }
+</script>

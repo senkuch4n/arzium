@@ -1,0 +1,31 @@
+---
+import { contact } from "../data/site";
+
+const items = [
+  { label: "Email", value: contact.email, href: `mailto:${contact.email}`, external: false },
+  ...contact.phones.map((p) => ({ label: "WhatsApp", value: p.label, href: `https://wa.me/${p.wa}`, external: true })),
+];
+---
+
+<section id="contacto" class="px-[var(--gutter)] pt-[clamp(80px,12vw,180px)] pb-10" aria-labelledby="contact-title">
+  <p class="font-semibold tracking-wide text-muted uppercase">¿Tenés un proyecto?</p>
+  <h2 id="contact-title" class="mt-[18px] mb-12 text-[clamp(64px,17vw,320px)] leading-[.8] font-black tracking-[-0.06em] uppercase">
+    <a href={`mailto:${contact.email}`} class="group inline-flex items-start gap-[.05em] transition-colors duration-300 hover:text-violet">
+      Hablemos<span class="text-[.35em] transition-transform duration-500 ease-out-expo group-hover:translate-x-[.1em] group-hover:-translate-y-[.1em]" aria-hidden="true">↗</span>
+    </a>
+  </h2>
+  <div class="grid border-t border-ink lg:grid-cols-3 lg:gap-[var(--gutter)]">
+    {
+      items.map((i) => (
+        <a
+          href={i.href}
+          {...(i.external && { target: "_blank", rel: "noopener" })}
+          class="border-b border-line py-4 text-[clamp(18px,1.8vw,26px)] font-semibold tracking-[-0.02em] [overflow-wrap:anywhere] hover:text-violet lg:border-0 lg:pb-0"
+        >
+          <small class="mb-1 block text-sm font-medium tracking-normal text-muted">{i.label}</small>
+          {i.value}
+        </a>
+      ))
+    }
+  </div>
+</section>

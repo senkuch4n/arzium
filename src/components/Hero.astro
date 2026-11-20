@@ -1,0 +1,73 @@
+---
+/** Fragmentos del código que se "tipea" en la tarjeta: [clase de color, texto]. */
+const code: [string, string][] = [
+  ["text-white/55", "// arzium.com.ar\n"],
+  ["text-[#c9b6ff]", "const "], ["", "proyecto = "], ["text-[#c9b6ff]", "await "], ["", "arzium.construir({\n"],
+  ["", "  tipo: "], ["text-[#fff3a8]", '"sistema a medida"'], ["", ",\n"],
+  ["", "  foco: "], ["text-[#fff3a8]", '"tu negocio"'], ["", ",\n"],
+  ["", "  entrega: "], ["text-[#fff3a8]", '"rápida y prolija"'], ["", ",\n"],
+  ["", "});\n\n"],
+  ["", "proyecto.lanzar(); "], ["text-white/55", "// 🚀"],
+];
+---
+
+<section
+  class="relative -mt-16 grid min-h-svh grid-cols-[minmax(0,1fr)] grid-rows-[1fr_auto_auto] px-[var(--gutter)] pt-[84px] pb-7 sm:-mt-20 sm:pt-[90px]"
+  aria-labelledby="hero-title"
+>
+  <div
+    class="aspect-video w-full max-w-[480px] animate-card-in self-start justify-self-center overflow-hidden rounded-md bg-violet px-7 py-6 text-white shadow-[0_30px_60px_-30px_rgba(75,5,248,.55)]"
+    aria-hidden="true"
+  >
+    <pre class="m-0 font-mono text-[clamp(12px,1.15vw,15px)] leading-[1.65] whitespace-pre-wrap"><code
+        data-typed
+        data-code={JSON.stringify(code)}></code><span class="inline-block h-[1.1em] w-[.55em] animate-blink bg-white align-[-0.2em]"></span></pre>
+  </div>
+
+  <h1 id="hero-title" class="mt-12 font-black">
+    <span class="mb-3 sm:mb-[.2em] flex justify-between text-xs font-semibold uppercase sm:text-base">
+      <span>Un estudio</span><span>de software</span><span class="max-sm:hidden">a medida</span>
+    </span>
+    <span
+      class="flex flex-col gap-[.25em] text-[15.5vw] leading-[.86] tracking-[-0.045em] whitespace-nowrap uppercase sm:flex-row sm:justify-between sm:text-[clamp(56px,10vw,200px)] sm:leading-[.82]"
+    >
+      <span class="inline-block animate-rise">Código</span>
+      <span class="inline-block animate-rise text-violet [animation-delay:.12s]">Que&nbsp;rinde</span>
+    </span>
+  </h1>
+
+  <div class="mt-9 flex justify-between pb-[76px] text-sm font-medium sm:text-base" aria-hidden="true">
+    <span>↓ Deslizá para ver</span>
+    <span>lo que construimos ↓</span>
+  </div>
+</section>
+
+<script>
+  const el = document.querySelector<HTMLElement>("[data-typed]");
+  if (el) {
+    const parts = JSON.parse(el.dataset.code ?? "[]") as [string, string][];
+    const total = parts.reduce((n, [, t]) => n + t.length, 0);
+
+    const render = (count: number) => {
+      el.replaceChildren();
+      let left = count;
+      for (const [cls, text] of parts) {
+        if (left <= 0) break;
+        const node = cls ? Object.assign(document.createElement("span"), { className: cls }) : null;
+        const content = document.createTextNode(text.slice(0, left));
+        el.append(node ? (node.append(content), node) : content);
+        left -= text.length;
+      }
+    };
+
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) render(total);
+    else {
+      let i = 0;
+      const tick = () => {
+        render(++i);
+        if (i < total) setTimeout(tick, 28 + Math.random() * 40);
+      };
+      setTimeout(tick, 900);
+    }
+  }
+</script>

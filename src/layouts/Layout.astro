@@ -1,0 +1,61 @@
+---
+import "../styles/global.css";
+import logo from "../assets/arzium-logo.png";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = "Arzium — Software a medida desde Salta",
+  description = "Arzium es un estudio de desarrollo de software: sistemas a medida, landing pages y capacitaciones. Salta, Argentina.",
+} = Astro.props;
+const ogImage = new URL(logo.src, Astro.site).href;
+---
+
+<!doctype html>
+<html lang="es-AR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={Astro.site} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={Astro.site} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="theme-color" content="#f2f1ee" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <script is:inline>document.documentElement.classList.add("js");</script>
+  </head>
+  <body>
+    <a
+      href="#trabajos"
+      class="fixed -left-[9999px] top-2 z-[100] rounded-lg bg-ink px-3.5 py-2.5 text-white focus:left-2"
+    >Saltar al contenido</a>
+    <slot />
+    <script>
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (e.isIntersecting) {
+              e.target.classList.add("in");
+              io.unobserve(e.target);
+            }
+          }
+        },
+        { threshold: 0.15 },
+      );
+      document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+    </script>
+  </body>
+</html>

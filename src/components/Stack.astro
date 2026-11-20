@@ -1,0 +1,22 @@
+---
+import { stack } from "../data/site";
+---
+
+<section class="pt-[clamp(80px,12vw,180px)] text-center" aria-labelledby="stack-title">
+  <h2 id="stack-title" class="px-[var(--gutter)] text-[clamp(56px,13vw,240px)] leading-[.82] font-black tracking-[-0.05em] uppercase">
+    <span class="text-stroke">Stack</span> <span>moderno</span>
+  </h2>
+  <p class="mt-12 mb-5 font-semibold tracking-wide text-muted uppercase">Trabajamos con</p>
+  <div class="group mask-fade-x overflow-hidden border-y border-ink" aria-label={`Tecnologías: ${stack.join(", ")}`} role="img">
+    <div class="flex w-max animate-marquee group-hover:[animation-play-state:paused]" aria-hidden="true">
+      {
+        [...stack, ...stack].map((t) => (
+          <span class="px-[34px] py-[22px] text-[clamp(22px,2.6vw,38px)] font-bold tracking-[-0.03em] whitespace-nowrap">
+            {t}
+            <span class="ml-[68px] align-middle text-[.6em] text-violet">✦</span>
+          </span>
+        ))
+      }
+    </div>
+  </div>
+</section>

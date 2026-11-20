@@ -1,0 +1,15 @@
+---
+interface Props {
+  id: string;
+  title: string;
+  sup?: string;
+}
+const { id, title, sup } = Astro.props;
+---
+
+<div class="mb-8 flex flex-col items-start justify-between gap-6 border-b border-ink pb-4 sm:flex-row sm:items-end">
+  <h2 id={id} class="text-[clamp(48px,9vw,150px)] leading-[.85] font-black tracking-[-0.045em] uppercase">
+    {title}{sup && <sup class="ml-[.08em] align-top text-[.32em] tracking-[-0.02em] text-violet">{sup}</sup>}
+  </h2>
+  <slot />
+</div>

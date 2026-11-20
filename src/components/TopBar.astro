@@ -1,0 +1,26 @@
+---
+const items = [
+  { title: "Salta, Argentina", sub: "Trabajando en todo el país", hide: "" },
+  { title: "Construyendo", sub: "Numa & Factum", hide: "max-sm:hidden" },
+  { title: "Agenda abierta", sub: "Nuevos proyectos · 2027", hide: "max-lg:hidden" },
+];
+---
+
+<header
+  class="relative z-10 grid grid-cols-[1fr_auto] items-center gap-[var(--gutter)] px-[var(--gutter)] pt-6 sm:grid-cols-[1fr_1fr_auto] lg:grid-cols-[1fr_1fr_1fr_auto]"
+>
+  {
+    items.map((i) => (
+      <div class:list={["flex flex-col leading-tight font-medium", i.hide]}>
+        <strong class="font-medium">{i.title}</strong>
+        <span class="text-muted">{i.sub}</span>
+      </div>
+    ))
+  }
+  <a
+    href="#contacto"
+    class="inline-flex items-center gap-2 rounded-full bg-ink px-[18px] py-3 font-semibold text-white transition duration-300 ease-out-expo hover:-translate-y-0.5 hover:bg-violet sm:px-[26px] sm:py-4"
+  >
+    Hablemos <span aria-hidden="true">→</span>
+  </a>
+</header>
