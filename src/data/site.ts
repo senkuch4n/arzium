@@ -11,6 +11,13 @@ export const contact = {
   ],
 } as const;
 
+/** Agenda de Cal.com: `link` es lo que va después de cal.com/ (usuario/evento). */
+export const cal = {
+  link: "arzium-events/30min",
+  namespace: "arzium",
+} as const;
+export const calUrl = `https://cal.com/${cal.link}`;
+
 export const nav = [
   { href: "#nosotros", label: "Nosotros" },
   { href: "#trabajos", label: "Trabajos" },

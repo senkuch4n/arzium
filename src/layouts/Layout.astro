@@ -44,6 +44,8 @@ const ogImage = new URL(logo.src, Astro.site).href;
     >Saltar al contenido</a>
     <slot />
     <script>
+      import "../scripts/cal";
+
       const io = new IntersectionObserver(
         (entries) => {
           for (const e of entries) {

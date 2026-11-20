@@ -1,4 +1,6 @@
 ---
+import { calUrl } from "../data/site";
+
 const items = [
   { title: "Salta, Argentina", sub: "Trabajando en todo el país", hide: "" },
   { title: "Construyendo", sub: "Numa & Factum", hide: "max-sm:hidden" },
@@ -18,7 +20,8 @@ const items = [
     ))
   }
   <a
-    href="#contacto"
+    href={calUrl}
+    data-cal-open
     class="inline-flex items-center gap-2 rounded-full bg-ink px-[18px] py-3 font-semibold text-white transition duration-300 ease-out-expo hover:-translate-y-0.5 hover:bg-violet sm:px-[26px] sm:py-4"
   >
     Hablemos <span aria-hidden="true">→</span>
