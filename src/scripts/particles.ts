@@ -5,12 +5,12 @@ interface Particle {
   x: number; y: number;   // posición actual
   hx: number; hy: number; // posición "casa" (dentro del ícono)
   vx: number; vy: number;
-  color: string;
+  violet: boolean;
   phase: number;          // para la oscilación sutil en reposo
 }
 
-const VIOLET = "#4b05f8";
-const INK = "#141414";
+/* Colores leídos de los tokens CSS para seguir al modo claro/oscuro. */
+const css = (name: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
 export function mountParticles(canvas: HTMLCanvasElement, src: string) {
   const ctx = canvas.getContext("2d");
@@ -74,11 +74,11 @@ export function mountParticles(canvas: HTMLCanvasElement, src: string) {
         const i = (y * tw + x) * 4;
         if (data[i + 3]! < 140) continue;
         // Violeta si el azul domina; si no, tinta.
-        const color = data[i + 2]! > data[i]! + 60 ? VIOLET : INK;
+        const violet = data[i + 2]! > data[i]! + 60;
         const hx = ox + x, hy = oy + y;
         const old = prev[particles.length];
         particles.push({
-          hx, hy, color,
+          hx, hy, violet,
           x: reduced ? hx : old?.x ?? Math.random() * w,
           y: reduced ? hy : old?.y ?? Math.random() * h,
           vx: 0, vy: 0,
@@ -116,12 +116,18 @@ export function mountParticles(canvas: HTMLCanvasElement, src: string) {
     }
   }
 
+  let palette = { violet: css("--color-violet"), ink: css("--color-ink") };
+  document.addEventListener("themechange", () => {
+    palette = { violet: css("--color-violet"), ink: css("--color-ink") };
+    if (reduced) draw();
+  });
+
   function draw() {
     ctx!.clearRect(0, 0, w, h);
-    let current = "";
-    for (const p of particles) {
-      if (p.color !== current) { current = p.color; ctx!.fillStyle = current; }
-      ctx!.fillRect(p.x, p.y, size, size);
+    // Dos pasadas (una por color) para no cambiar fillStyle en cada partícula.
+    for (const v of [true, false]) {
+      ctx!.fillStyle = v ? palette.violet : palette.ink;
+      for (const p of particles) if (p.violet === v) ctx!.fillRect(p.x, p.y, size, size);
     }
   }
 

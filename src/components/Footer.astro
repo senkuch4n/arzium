@@ -1,13 +1,17 @@
 ---
 import { Image } from "astro:assets";
-import logo from "../assets/arzium-logo.png";
+import logoLight from "../assets/arzium-logo-claro.png";
+import logoDark from "../assets/arzium-logo-oscuro.png";
 import { nav } from "../data/site";
 
 const links = nav.filter((n) => n.href !== "#nosotros");
 ---
 
 <footer class="grid items-start gap-[var(--gutter)] px-[var(--gutter)] pt-20 pb-[130px] lg:grid-cols-[1fr_auto_auto] lg:items-end">
-  <Image src={logo} alt="Arzium" width={560} class="-ml-6 w-[min(280px,60vw)] mix-blend-multiply" />
+  <div class="w-[min(240px,55vw)]">
+    <Image src={logoLight} alt="Arzium" width={480} class="w-full dark:hidden" />
+    <Image src={logoDark} alt="Arzium" width={480} class="hidden w-full dark:block" />
+  </div>
   <nav class="flex gap-6 font-medium" aria-label="Pie de página">
     {links.map((l) => <a href={l.href} class="hover:text-violet">{l.label}</a>)}
   </nav>

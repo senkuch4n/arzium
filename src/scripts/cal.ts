@@ -1,4 +1,5 @@
 import { cal } from "../data/site";
+import { isDark } from "./theme";
 
 /* Integración de Cal.com (https://cal.com/docs/developing/guides/embeds).
    El script de Cal se carga recién cuando hace falta: al acercarse al calendario
@@ -12,6 +13,8 @@ declare global {
 
 const BRAND = "#4b05f8";
 const PAGE_BG = "#f2f1ee";
+const PAGE_BG_DARK = "#0e0e0f";
+const BRAND_DARK = "#7d4bff";
 let api: CalFn | null = null;
 
 function loadCal(): CalFn {
@@ -25,15 +28,17 @@ function loadCal(): CalFn {
   window.Cal!("init", cal.namespace, { origin: "https://cal.com" });
   api = window.Cal!.ns[cal.namespace]!;
   api("ui", {
-    theme: "light",
+    theme: isDark() ? "dark" : "light",
     layout: "month_view",
     hideEventTypeDetails: false,
     cssVarsPerTheme: {
       // Fondo igual al de la página para que la agenda no sea un bloque blanco.
       light: { "cal-brand": BRAND, "cal-bg": PAGE_BG, "cal-bg-muted": PAGE_BG },
-      dark: { "cal-brand": BRAND },
+      dark: { "cal-brand": BRAND_DARK, "cal-bg": PAGE_BG_DARK, "cal-bg-muted": PAGE_BG_DARK },
     },
   });
+  // Si cambia el tema con la agenda ya cargada, la actualizamos.
+  document.addEventListener("themechange", () => api?.("ui", { theme: isDark() ? "dark" : "light" }));
   return api;
 }
 

@@ -16,7 +16,7 @@ const count = String(projects.length).padStart(2, "0");
       projects.map((p) => (
         <li class="reveal">
           <a href={p.url} target="_blank" rel="noopener" class="group block">
-            <div class="aspect-[16/10] overflow-hidden rounded-md bg-[#e4e3df]">
+            <div class="aspect-[16/10] overflow-hidden rounded-md bg-line">
               {p.image ? (
                 <Image
                   src={p.image.src}

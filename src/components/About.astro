@@ -1,30 +1,147 @@
 ---
+import { Image } from "astro:assets";
+import { projects } from "../data/site";
+
 const text =
   "Somos Arzium, un equipo de desarrollo de Salta. Diseñamos y programamos sistemas que ordenan el trabajo de verdad, sitios que convierten visitas en clientes y capacitaciones para que tu equipo saque provecho de la tecnología. Sin humo: software claro, rápido y hecho para durar.";
-const words = text.split(" ");
+
+/* Cada palabra arranca separada por un hueco "aleatorio" (en em) que se cierra con el scroll.
+   Pseudoaleatorio con semilla fija para que el HTML sea estable entre builds. */
+let seed = 7;
+const rand = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
+const words = text.split(" ").map((w) => ({ w, gap: rand() < 0.35 ? 0 : 0.6 + rand() * 3.4 }));
+
+const deck = projects.filter((p) => p.image);
+/** Rotación de cada posición de la pila (0 = arriba). */
+const ROTS = [0, 5, -4, 7, -6];
 ---
 
-<section id="nosotros" class="grid gap-[var(--gutter)] px-[var(--gutter)] pt-[clamp(80px,12vw,180px)] lg:grid-cols-[1fr_3fr]">
-  <h2 class="font-semibold tracking-wide text-muted uppercase">Nosotros</h2>
-  <p data-words class="text-[clamp(26px,3.5vw,54px)] leading-[1.08] font-semibold tracking-[-0.03em]">
-    {words.map((w) => <span class="transition-opacity duration-500 [.js_&]:opacity-15 [&.on]:opacity-100!">{w} </span>)}
-  </p>
+<section id="nosotros" class="grid items-center gap-x-[var(--gutter)] gap-y-14 px-[var(--gutter)] pt-[clamp(40px,6vw,96px)] lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
+  <div>
+    <h2 class="mb-8 font-semibold tracking-wide text-muted uppercase">Nosotros</h2>
+    <p data-scatter class="text-[clamp(26px,3.3vw,52px)] leading-[1.08] font-semibold tracking-[-0.03em] [--s:0] [.js_&]:[--s:1]">
+      {
+        words.map(({ w, gap }) => (
+          <>
+            <span class="ml-[calc(var(--g)*var(--s)*1em)] inline-block" style={`--g:${gap.toFixed(2)}`}>{w}</span>{" "}
+          </>
+        ))
+      }
+    </p>
+  </div>
+
+  <!-- Pila de capturas: rota sola y se abre en abanico al pasar el mouse. -->
+  <figure class="m-0" data-rots={JSON.stringify(ROTS)}>
+    <div data-deck class="deck relative mx-auto aspect-[16/11] w-[min(100%,560px)]">
+      {
+        deck.map((p, i) => (
+          <a
+            href={p.url}
+            target="_blank"
+            rel="noopener"
+            class="deck-card absolute inset-0 overflow-hidden rounded-lg bg-line shadow-[0_24px_50px_-24px_rgba(0,0,0,.45)] ring-1 ring-black/5"
+            style={`--i:${i};--rot:${ROTS[i % ROTS.length]}deg`}
+            data-name={p.name}
+            data-cat={p.category}
+            tabindex={i === 0 ? 0 : -1}
+            aria-label={`${p.name} (${p.category})`}
+          >
+            <Image src={p.image!.src} alt="" widths={[560, 1120]} sizes="560px" class="size-full object-cover object-top" />
+          </a>
+        ))
+      }
+    </div>
+    <figcaption class="mx-auto mt-6 flex w-[min(100%,560px)] items-center justify-between font-mono text-sm">
+      <span><span data-deck-name>{deck[0]?.name}</span> <span class="text-muted">· <span data-deck-cat>{deck[0]?.category}</span></span></span>
+      <span class="text-muted" aria-hidden="true"><span data-deck-idx>01</span> / {String(deck.length).padStart(2, "0")}</span>
+    </figcaption>
+  </figure>
 </section>
 
+<style>
+  /* Posición de cada tarjeta según --i (0 = arriba). */
+  .deck-card {
+    z-index: calc(10 - var(--i));
+    transform-origin: 50% 90%;
+    transform: translate(calc(var(--i) * -14px), calc(var(--i) * -16px)) rotate(var(--rot)) scale(calc(1 - var(--i) * 0.045));
+    transition: transform 0.9s var(--ease-out-expo), opacity 0.45s;
+  }
+  .deck-card.leaving {
+    transform: translate(-28%, 14%) rotate(-14deg) scale(0.92);
+    opacity: 0;
+  }
+  /* Abanico al pasar el mouse. */
+  .deck:hover .deck-card,
+  .deck:focus-within .deck-card {
+    transform: translate(calc((var(--i) - 1.5) * 11% + 4%), calc(var(--i) * 1.5%)) rotate(calc((var(--i) - 1.5) * 5deg)) scale(0.72);
+  }
+  .deck:hover .deck-card:hover {
+    transform: translate(calc((var(--i) - 1.5) * 11% + 4%), calc(var(--i) * 1.5% - 5%)) rotate(calc((var(--i) - 1.5) * 5deg)) scale(0.76);
+  }
+</style>
+
 <script>
-  const about = document.querySelector<HTMLElement>("[data-words]");
-  if (about) {
-    const words = [...about.children];
-    const update = () => {
-      const r = about.getBoundingClientRect();
-      const p = Math.min(1, Math.max(0, (innerHeight * 0.85 - r.top) / (r.height + innerHeight * 0.35)));
-      const lit = Math.round(p * words.length);
-      words.forEach((w, i) => w.classList.toggle("on", i < lit));
-    };
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches) words.forEach((w) => w.classList.add("on"));
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* Párrafo: los huecos entre palabras se cierran con el scroll. */
+  const p = document.querySelector<HTMLElement>("[data-scatter]");
+  if (p) {
+    if (reduced) p.style.setProperty("--s", "0");
     else {
-      addEventListener("scroll", () => requestAnimationFrame(update), { passive: true });
+      let queued = false;
+      const update = () => {
+        queued = false;
+        const top = p.getBoundingClientRect().top;
+        // 0 cuando el párrafo asoma por abajo, 1 cuando su borde superior llega al 25% de la pantalla.
+        const progress = Math.min(1, Math.max(0, (innerHeight - top) / (innerHeight * 0.75)));
+        const eased = 1 - Math.pow(1 - progress, 3);
+        p.style.setProperty("--s", (1 - eased).toFixed(4));
+      };
+      addEventListener("scroll", () => { if (!queued) { queued = true; requestAnimationFrame(update); } }, { passive: true });
+      addEventListener("resize", update);
       update();
     }
+  }
+
+  /* Pila de capturas: cada 3 s la de arriba sale volando y pasa al fondo. */
+  const deck = document.querySelector<HTMLElement>("[data-deck]");
+  if (deck) {
+    let order = [...deck.querySelectorAll<HTMLElement>(".deck-card")];
+    const rots = JSON.parse(deck.closest("figure")?.dataset.rots ?? "[0]") as number[];
+    const name = document.querySelector("[data-deck-name]")!;
+    const cat = document.querySelector("[data-deck-cat]")!;
+    const idx = document.querySelector("[data-deck-idx]")!;
+    const total = order.length;
+    let shown = 0, paused = false, visible = false;
+
+    const layout = () => {
+      order.forEach((c, i) => {
+        c.style.setProperty("--i", String(i));
+        c.style.setProperty("--rot", `${rots[i % rots.length]}deg`);
+        c.tabIndex = i === 0 ? 0 : -1;
+      });
+      name.textContent = order[0]!.dataset.name ?? "";
+      cat.textContent = order[0]!.dataset.cat ?? "";
+      idx.textContent = String((shown % total) + 1).padStart(2, "0");
+    };
+
+    const next = () => {
+      if (paused || !visible) return;
+      const top = order[0]!;
+      top.classList.add("leaving");
+      setTimeout(() => {
+        top.classList.remove("leaving");
+        order = [...order.slice(1), top];
+        shown++;
+        layout();
+      }, 450);
+    };
+
+    deck.addEventListener("pointerenter", () => (paused = true));
+    deck.addEventListener("pointerleave", () => (paused = false));
+    deck.addEventListener("focusin", () => (paused = true));
+    deck.addEventListener("focusout", () => (paused = false));
+    new IntersectionObserver(([e]) => (visible = !!e?.isIntersecting)).observe(deck);
+    if (!reduced) setInterval(next, 3000);
   }
 </script>

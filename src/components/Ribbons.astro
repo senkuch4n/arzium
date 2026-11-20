@@ -1,0 +1,62 @@
+---
+/* Dos cintas cruzadas con texto gigante que corren en sentidos opuestos.
+   La velocidad se acelera con el scroll (ver script). */
+const top = ["Sistemas a medida", "Landing pages", "Capacitaciones", "Software que rinde"];
+const bottom = ["Desde Salta", "Para todo el país", "Código prolijo", "Entregas rápidas"];
+const repeat = <T,>(a: T[]) => [...a, ...a, ...a];
+---
+
+<div class="relative h-[clamp(150px,17vw,280px)] overflow-x-clip" aria-hidden="true">
+  {
+    [
+      { items: bottom, dir: 1, cls: "rotate-[2.5deg] bg-ink text-bg z-0" },
+      { items: top, dir: -1, cls: "-rotate-[3deg] bg-violet text-white z-10 shadow-[0_30px_60px_-30px_rgba(75,5,248,.6)]" },
+    ].map((r) => (
+      <div class:list={["absolute top-1/2 -left-[10vw] w-[120vw] -translate-y-1/2 overflow-hidden py-[clamp(10px,1.2vw,18px)]", r.cls]}>
+        <div data-ribbon={r.dir} class="flex w-max will-change-transform">
+          {repeat(r.items).map((t) => (
+            <span class="flex items-center gap-[clamp(20px,2.4vw,40px)] pr-[clamp(20px,2.4vw,40px)] text-[clamp(36px,5.6vw,92px)] leading-none font-black tracking-[-0.04em] whitespace-nowrap uppercase">
+              {t}
+              <span class="text-[.5em]">✦</span>
+            </span>
+          ))}
+        </div>
+      </div>
+    ))
+  }
+</div>
+
+<script>
+  const tracks = [...document.querySelectorAll<HTMLElement>("[data-ribbon]")];
+  if (tracks.length && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const BASE = 0.6; // px por frame en reposo
+    let offset = 0, boost = 0, lastY = scrollY, visible = true, raf = 0;
+    // Un tercio del ancho = un juego completo de textos (están repetidos 3 veces).
+    let loop = 0;
+    const measure = () => (loop = tracks[0]!.scrollWidth / 3);
+
+    const frame = () => {
+      raf = 0;
+      if (!visible) return;
+      const dy = scrollY - lastY;
+      lastY = scrollY;
+      boost += (Math.abs(dy) * 0.35 - boost) * 0.12; // se suaviza y vuelve a 0 al frenar
+      offset = (offset + BASE + boost) % loop;
+      for (const t of tracks) {
+        const dir = Number(t.dataset.ribbon);
+        // dir -1 corre a la izquierda, 1 a la derecha (arranca desplazada para no mostrar el borde).
+        const x = dir < 0 ? -offset : offset - loop;
+        t.style.transform = `translate3d(${x.toFixed(1)}px,0,0)`;
+      }
+      raf = requestAnimationFrame(frame);
+    };
+
+    new IntersectionObserver(([e]) => {
+      visible = !!e?.isIntersecting;
+      if (visible && !raf) { lastY = scrollY; raf = requestAnimationFrame(frame); }
+    }).observe(tracks[0]!.parentElement!.parentElement!);
+    addEventListener("resize", measure);
+    document.fonts?.ready.then(measure);
+    measure();
+  }
+</script>
